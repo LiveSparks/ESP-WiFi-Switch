@@ -11,6 +11,7 @@
 
 const char* ssid = "ssid";              //Replace <ssid> with the SSID of your WiFi Network e.g. const char* ssid = "YourWifi";
 const char* password = "pass";          //Replace <pass> with the password of your WiFi Network e.g. const char* password = "YourPassword";
+int pinstate = 0;
 
 // Create an instance of the server
 // specify the port to listen on as an argument
@@ -31,7 +32,6 @@ void setup() {
   Serial.println(ssid);
   
   WiFi.begin(ssid, password);
-  WiFi.config(192.168.1.7);    //This gives your ESP an static IP address (You can change the ip to your liking)
   
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -72,17 +72,21 @@ void loop() {
   String s;
   
   choice = 0;
-  if (req.indexOf("/gpio/0") != -1)
+  if (req.indexOf("/gpio/0") != -1){
     val = 0;
-  else if (req.indexOf("/gpio/1") != -1)
+    pinstate = 0;
+  }
+  else if (req.indexOf("/gpio/1") != -1){
     val = 1;
+    pinstate = 1;
+  }
   else if (req.indexOf("/status") != -1)
     choice = 1;
   else {
     Serial.println("invalid request");
     client.stop();
     return;
-  }
+    }
 
   
   
@@ -92,7 +96,7 @@ void loop() {
 
   if (choice == 1){                    // responds with current status of the pin
     s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML>\r\n<html>\r\n";
-    s += (val)?"high":"low";
+    s += (pinstate)?"high":"low";
     s += "</html>\n";
   }
   else {
